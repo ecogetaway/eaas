@@ -39,6 +39,14 @@ api.interceptors.response.use(
       }
     });
     
+    // Handle network errors (backend not available)
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      const errorMessage = 'Backend API is not available. Please ensure the backend server is running.';
+      error.userMessage = errorMessage;
+      console.error(errorMessage);
+      console.error('API URL:', error.config?.baseURL);
+    }
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
