@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'eaas-frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:
 
 permissions:
@@ -35,7 +36,7 @@ jobs:
           cache-dependency-path: eaas-frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Build
         run: npm run build
