@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: eaas-backend/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Install dependencies
         run: npm install
       - name: Check syntax
@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: eaas-frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Install dependencies
         run: npm install
       - name: Run linter
@@ -63,7 +63,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: eaas-frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Install dependencies
         run: npm install
       - name: Build
