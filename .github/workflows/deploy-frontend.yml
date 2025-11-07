@@ -52,6 +52,11 @@ jobs:
             exit 1
           fi
           echo "Build output verified ✓"
+      
+      - name: Copy 404.html for SPA routing
+        run: |
+          cp dist/index.html dist/404.html
+          echo "✅ Created 404.html for GitHub Pages SPA routing"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

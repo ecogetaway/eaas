@@ -1,4 +1,5 @@
 import api from './api.js';
+import { API_URL } from '../utils/constants.js';
 
 export const billingService = {
   getUserBills: async (userId) => {
@@ -24,7 +25,6 @@ export const billingService = {
   downloadInvoice: async (billId) => {
     try {
       const token = localStorage.getItem('token');
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
       const response = await fetch(`${API_URL}/bills/${billId}/invoice`, {
         headers: {
           Authorization: `Bearer ${token}`,

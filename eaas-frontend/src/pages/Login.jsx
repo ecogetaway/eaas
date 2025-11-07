@@ -29,7 +29,7 @@ const Login = () => {
       
       // Provide helpful message for network errors
       if (err.code === 'ERR_NETWORK' || err.message === 'Network Error' || err.userMessage) {
-        errorMessage = 'Unable to connect to backend API. The backend server needs to be deployed and running. For local development, ensure the backend is running on http://localhost:5001';
+        errorMessage = 'Unable to connect to backend API. The backend server needs to be deployed and running. For local development, ensure the backend is running on http://localhost:5000';
       }
       
       console.error('Error message:', errorMessage);
