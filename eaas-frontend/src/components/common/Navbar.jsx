@@ -57,10 +57,22 @@ const Navbar = () => {
                   Dashboard
                 </Link>
                 <Link
+                  to="/services-plans"
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Services & Plans
+                </Link>
+                <Link
                   to="/billing"
                   className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Billing
+                </Link>
+                <Link
+                  to="/ai-advisor"
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  AI Advisor
                 </Link>
                 <Link
                   to="/support"
@@ -73,6 +85,12 @@ const Navbar = () => {
                   className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Subscription
+                </Link>
+                <Link
+                  to="/settings"
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Settings
                 </Link>
                 <button
                   onClick={() => setNotificationOpen(true)}
@@ -149,11 +167,25 @@ const Navbar = () => {
               Dashboard
             </Link>
             <Link
+              to="/services-plans"
+              className="block text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Services & Plans
+            </Link>
+            <Link
               to="/billing"
               className="block text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md"
               onClick={() => setMobileMenuOpen(false)}
             >
               Billing
+            </Link>
+            <Link
+              to="/ai-advisor"
+              className="block text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              AI Advisor
             </Link>
             <Link
               to="/subscription"
@@ -168,6 +200,13 @@ const Navbar = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               Support
+            </Link>
+            <Link
+              to="/settings"
+              className="block text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Settings
             </Link>
             <Link
               to="/profile"

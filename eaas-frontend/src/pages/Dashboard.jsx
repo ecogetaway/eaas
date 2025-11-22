@@ -11,6 +11,10 @@ import SavingsCard from '../components/dashboard/SavingsCard.jsx';
 import CarbonImpact from '../components/dashboard/CarbonImpact.jsx';
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
 import AlertList from '../components/alerts/AlertList.jsx';
+import EnergyOverviewCards from '../components/dashboard/EnergyOverviewCards.jsx';
+import EnergyMixChart from '../components/dashboard/EnergyMixChart.jsx';
+import BatteryPerformanceChart from '../components/dashboard/BatteryPerformanceChart.jsx';
+import GridIndependenceScore from '../components/dashboard/GridIndependenceScore.jsx';
 import { formatCurrency, formatKWh } from '../utils/formatters.js';
 import MetricCard from '../components/common/MetricCard.jsx';
 import { Sun, Zap } from 'lucide-react';
@@ -77,10 +81,42 @@ const DashboardContent = () => {
       <Navbar />
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
-
-          {/* Live Metrics */}
+          {/* Energy Overview Section */}
           <div className="mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+              <h1 className="text-2xl font-bold text-gray-900">Energy Overview</h1>
+              <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border mt-2 sm:mt-0">
+                <span className="w-2 h-2 bg-green-500 rounded-full inline-block mr-2"></span>
+                System Status: <span className="font-medium text-green-600">Optimal</span>
+              </div>
+            </div>
+            <EnergyOverviewCards 
+              currentEnergy={currentEnergy}
+              dashboardSummary={dashboardSummary}
+              subscription={subscription}
+            />
+          </div>
+
+          {/* Energy Mix Analysis Chart */}
+          <div className="mb-8">
+            <EnergyMixChart energyHistory={energyHistory} />
+          </div>
+
+          {/* Battery Performance and Grid Independence Score */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <BatteryPerformanceChart 
+              energyHistory={energyHistory} 
+              batteryCapacity={subscription.battery_capacity}
+            />
+            <GridIndependenceScore 
+              dashboardSummary={dashboardSummary} 
+              energyHistory={energyHistory}
+            />
+          </div>
+
+          {/* Original Live Metrics (kept for compatibility) */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Detailed Metrics</h2>
             <LiveMetrics
               currentEnergy={currentEnergy}
               batteryCapacity={subscription.battery_capacity}

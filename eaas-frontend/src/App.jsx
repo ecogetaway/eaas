@@ -12,6 +12,9 @@ import Support from './pages/Support.jsx';
 import Profile from './pages/Profile.jsx';
 import Subscription from './pages/Subscription.jsx';
 import Meters from './pages/Meters.jsx';
+import ServicesPlans from './pages/ServicesPlans.jsx';
+import AiAdvisor from './pages/AiAdvisor.jsx';
+import Settings from './pages/Settings.jsx';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -84,6 +87,30 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Meters />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/services-plans"
+        element={
+          <ProtectedRoute>
+            <ServicesPlans />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ai-advisor"
+        element={
+          <ProtectedRoute>
+            <AiAdvisor />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
         }
       />

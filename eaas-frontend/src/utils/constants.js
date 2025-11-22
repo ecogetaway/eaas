@@ -1,5 +1,5 @@
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:5000';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:5001';
 
 export const PLAN_TYPES = {
   BASIC_SOLAR: 'basic_solar',
