@@ -17,6 +17,7 @@ import BatteryPerformanceChart from '../components/dashboard/BatteryPerformanceC
 import GridIndependenceScore from '../components/dashboard/GridIndependenceScore.jsx';
 import { formatCurrency, formatKWh } from '../utils/formatters.js';
 import MetricCard from '../components/common/MetricCard.jsx';
+import DiscomStatusCard from '../components/dashboard/DiscomStatusCard.jsx';
 import { Sun, Zap } from 'lucide-react';
 
 const DashboardContent = () => {
@@ -159,10 +160,16 @@ const DashboardContent = () => {
             <EnergyChart energyHistory={energyHistory} period={period} />
           </div>
 
-          {/* Active Alerts */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Active Alerts</h2>
-            <AlertList showOnlyActive={true} />
+          {/* DISCOM Status & Active Alerts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div>
+              <h2 className="text-xl font-semibold mb-4">DISCOM Status</h2>
+              <DiscomStatusCard userId={user?.userId} />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Active Alerts</h2>
+              <AlertList showOnlyActive={true} />
+            </div>
           </div>
         </div>
       </main>

@@ -15,12 +15,15 @@ import billingRoutes from './routes/billing.js';
 import supportRoutes from './routes/support.js';
 import notificationRoutes from './routes/notifications.js';
 import alertRoutes from './routes/alerts.js';
+import meterRoutes from './routes/meters.js';
+import discomRoutes from './routes/discom.js';
 
 dotenv.config();
 
 // CORS configuration - allow multiple origins
 const allowedOrigins = [
-  'http://localhost:5173',           // Local development (Vite)
+  'http://localhost:5173',           // Local development (Vite default)
+  'http://localhost:5174',           // Local development (Vite alternative)
   'http://localhost:3000',           // Alternative local dev port
   'https://ecogetaway.github.io',    // GitHub Pages production
   process.env.FRONTEND_URL,          // Custom frontend URL from env
@@ -36,7 +39,7 @@ const io = new Server(httpServer, {
   },
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -67,14 +70,16 @@ app.get('/', (req, res) => {
   res.json({ 
     message: 'EaaS Backend API',
     version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      auth: '/api/auth',
-      subscriptions: '/api/subscriptions',
-      energy: '/api/energy',
-      bills: '/api/bills',
-      tickets: '/api/tickets'
-    },
+      endpoints: {
+        health: '/health',
+        auth: '/api/auth',
+        subscriptions: '/api/subscriptions',
+        energy: '/api/energy',
+        bills: '/api/bills',
+        tickets: '/api/tickets',
+        meters: '/api/meters',
+        discom: '/api/discom'
+      },
     frontend: 'http://localhost:5173'
   });
 });
@@ -87,6 +92,8 @@ app.use('/api/bills', billingRoutes);
 app.use('/api/tickets', supportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/meters', meterRoutes);
+app.use('/api/discom', discomRoutes);
 
 // WebSocket connection handling
 io.on('connection', (socket) => {

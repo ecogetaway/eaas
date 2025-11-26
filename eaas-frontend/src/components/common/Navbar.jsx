@@ -87,6 +87,12 @@ const Navbar = () => {
                   Subscription
                 </Link>
                 <Link
+                  to="/discom"
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  DISCOM
+                </Link>
+                <Link
                   to="/settings"
                   className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
@@ -195,11 +201,11 @@ const Navbar = () => {
               Subscription
             </Link>
             <Link
-              to="/support"
+              to="/discom"
               className="block text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Support
+              DISCOM
             </Link>
             <Link
               to="/settings"
@@ -207,6 +213,13 @@ const Navbar = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               Settings
+            </Link>
+            <Link
+              to="/support"
+              className="block text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Support
             </Link>
             <Link
               to="/profile"

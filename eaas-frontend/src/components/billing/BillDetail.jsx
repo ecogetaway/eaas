@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { billingService } from '../../services/billingService.js';
 import { formatCurrency, formatDate } from '../../utils/formatters.js';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
+import RazorpayMock from '../payment/RazorpayMock.jsx';
 import { Download, ArrowLeft, CreditCard, CheckCircle } from 'lucide-react';
 
 const BillDetail = () => {
@@ -10,11 +11,11 @@ const BillDetail = () => {
   const navigate = useNavigate();
   const [bill, setBill] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('upi');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
     loadBill();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [billId]);
 
   const loadBill = async () => {
@@ -29,26 +30,21 @@ const BillDetail = () => {
     }
   };
 
-  const handlePayment = async () => {
+  const handlePaymentSuccess = async (paymentDetails) => {
     try {
-      setProcessing(true);
-      
-      // Enhanced mock payment flow
-      const paymentResult = await billingService.processPayment(billId, { 
-        payment_method: paymentMethod 
+      // Process payment on backend
+      await billingService.processPayment(billId, { 
+        payment_method: paymentDetails.method,
+        transaction_id: paymentDetails.paymentId
       });
       
-      // Show success message with transaction details
-      const message = `Payment processed successfully!\n\nTransaction ID: ${paymentResult.payment?.transaction_id || 'N/A'}\nAmount: ${formatCurrency(bill.total_amount)}\nPayment Method: ${paymentMethod.toUpperCase()}`;
-      alert(message);
-      
-      loadBill(); // Reload bill to show updated status
+      // Wait for modal to close animation
+      setTimeout(() => {
+        setShowPaymentModal(false);
+        loadBill(); // Reload bill to show updated status
+      }, 500);
     } catch (error) {
       console.error('Error processing payment:', error);
-      const errorMessage = error.response?.data?.error || 'Payment failed. Please try again.';
-      alert(errorMessage);
-    } finally {
-      setProcessing(false);
     }
   };
 
@@ -192,37 +188,19 @@ const BillDetail = () => {
       {bill.status === 'pending' && (
         <div className="card mt-6">
           <h3 className="font-semibold mb-4">Make Payment</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Payment Method</label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="input"
-              >
-                <option value="upi">UPI</option>
-                <option value="card">Credit/Debit Card</option>
-                <option value="net_banking">Net Banking</option>
-              </select>
-            </div>
-            <button
-              onClick={handlePayment}
-              disabled={processing}
-              className="btn btn-primary w-full flex items-center justify-center"
-            >
-              {processing ? (
-                <>
-                  <LoadingSpinner size="sm" />
-                  <span className="ml-2">Processing...</span>
-                </>
-              ) : (
-                <>
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Pay {formatCurrency(bill.total_amount)}
-                </>
-              )}
-            </button>
-          </div>
+          <p className="text-gray-600 mb-4">
+            Complete your payment securely using UPI, Cards, Net Banking, or Wallets.
+          </p>
+          <button
+            onClick={() => setShowPaymentModal(true)}
+            className="btn btn-primary w-full flex items-center justify-center"
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            Pay {formatCurrency(bill.total_amount)}
+          </button>
+          <p className="text-xs text-gray-400 mt-3 text-center">
+            Demo mode: No actual charges will be made
+          </p>
         </div>
       )}
 
@@ -239,9 +217,18 @@ const BillDetail = () => {
           )}
         </div>
       )}
+
+      {/* Razorpay Mock Payment Modal */}
+      <RazorpayMock
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        amount={parseFloat(bill.total_amount)}
+        description={`Bill Payment - ${formatDate(bill.billing_period_start)} to ${formatDate(bill.billing_period_end)}`}
+        onSuccess={handlePaymentSuccess}
+        merchantName="EaaS Energy Services"
+      />
     </div>
   );
 };
 
 export default BillDetail;
-

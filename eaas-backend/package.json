@@ -8,6 +8,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "migrate": "node src/scripts/migrate.js",
+    "migrate:billing": "node src/scripts/migrate-billing-schema.js",
+    "migrate:discom": "node src/scripts/migrate-discom.js",
     "seed": "node src/scripts/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

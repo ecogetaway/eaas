@@ -15,6 +15,10 @@ import Meters from './pages/Meters.jsx';
 import ServicesPlans from './pages/ServicesPlans.jsx';
 import AiAdvisor from './pages/AiAdvisor.jsx';
 import Settings from './pages/Settings.jsx';
+import Discom from './pages/Discom.jsx';
+import DesignSystemPage from './pages/design-system/DesignSystemPage.jsx';
+import ButtonPage from './pages/design-system/ButtonPage.jsx';
+import BadgePage from './pages/design-system/BadgePage.jsx';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -114,6 +118,17 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/discom"
+        element={
+          <ProtectedRoute>
+            <Discom />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/design-system" element={<DesignSystemPage />} />
+      <Route path="/design-system/button" element={<ButtonPage />} />
+      <Route path="/design-system/badge" element={<BadgePage />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
