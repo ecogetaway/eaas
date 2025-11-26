@@ -136,8 +136,8 @@ io.on('connection', (socket) => {
 app.use(notFound);
 app.use(errorHandler);
 
-// Start server
-httpServer.listen(PORT, () => {
+// Start server - bind to 0.0.0.0 for container environments
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📡 WebSocket server ready`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
