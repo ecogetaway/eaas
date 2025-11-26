@@ -3,12 +3,14 @@ import { subscriptionService } from '../../services/subscriptionService.js';
 import { Check, Zap, Battery, Star } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters.js';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
+import ErrorMessage from '../common/ErrorMessage.jsx';
 import { cn } from '../../utils/cn.js';
 
 const Step2_PlanSelection = ({ formData, setFormData, onNext, onBack }) => {
   const [plans, setPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(formData.selectedPlan || null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadPlans();
@@ -17,6 +19,7 @@ const Step2_PlanSelection = ({ formData, setFormData, onNext, onBack }) => {
   const loadPlans = async () => {
     try {
       setLoading(true);
+      setError('');
       const data = await subscriptionService.getPlans();
       setPlans(data);
       
@@ -29,6 +32,7 @@ const Step2_PlanSelection = ({ formData, setFormData, onNext, onBack }) => {
       }
     } catch (error) {
       console.error('Error loading plans:', error);
+      setError('Failed to load plans. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -36,9 +40,10 @@ const Step2_PlanSelection = ({ formData, setFormData, onNext, onBack }) => {
 
   const handleNext = () => {
     if (!selectedPlan) {
-      alert('Please select a plan');
+      setError('Please select a plan to continue');
       return;
     }
+    setError('');
     setFormData({ ...formData, selectedPlan });
     onNext();
   };
@@ -68,6 +73,12 @@ const Step2_PlanSelection = ({ formData, setFormData, onNext, onBack }) => {
   return (
     <div className="max-w-6xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Choose Your Plan</h2>
+
+      {error && (
+        <div className="mb-6">
+          <ErrorMessage message={error} onDismiss={() => setError('')} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {plans.map((plan) => {

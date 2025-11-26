@@ -9,8 +9,13 @@ A modern React frontend for the Energy-as-a-Service platform built with Vite, Ta
 - 📈 Interactive Charts (Line, Area, Bar, Pie)
 - 💰 Billing & Invoice Management
 - 🎫 Support Ticket System
+- ⚡ Smart Meters Management
+- 🤖 AI Advisor Chat
+- 📋 Services & Plans Selection
+- ⚙️ Settings & Profile Management
 - 📱 Responsive Design (Mobile, Tablet, Desktop)
 - 🎨 Modern UI with Tailwind CSS
+- ♿ Accessibility Features (ARIA labels, keyboard navigation)
 
 ## Tech Stack
 
@@ -58,17 +63,22 @@ A modern React frontend for the Energy-as-a-Service platform built with Vite, Ta
 ```
 src/
 ├── components/          # Reusable components
-│   ├── common/         # Common UI components
+│   ├── common/         # Common UI components (Navbar, LoadingSpinner, EmptyState, ErrorMessage, SuccessMessage)
 │   ├── subscription/   # Subscription flow components
 │   ├── dashboard/      # Dashboard components
 │   ├── billing/        # Billing components
-│   └── support/        # Support ticket components
+│   ├── support/        # Support ticket components
+│   ├── alerts/         # Alert components
+│   └── notifications/  # Notification components
 ├── pages/              # Page components
+│   ├── design-system/  # Design system documentation pages
+│   └── ...             # Feature pages (Dashboard, Billing, Support, etc.)
 ├── services/           # API service layer
 ├── context/            # React context providers
 ├── hooks/              # Custom React hooks
 ├── utils/              # Utility functions
-├── App.jsx             # Main app component
+├── config/             # Configuration files (design system, constants)
+├── App.jsx             # Main app component with routing
 └── main.jsx            # Entry point
 ```
 
@@ -86,8 +96,15 @@ src/
 - `/register` - User registration
 - `/onboarding` - 3-step subscription flow
 - `/dashboard` - Real-time energy dashboard
+- `/services-plans` - View and select energy plans
+- `/subscription` - Manage current subscription
 - `/billing` - Bill list and details
 - `/support` - Support tickets
+- `/meters` - Smart meters management
+- `/ai-advisor` - AI-powered energy advisor chat
+- `/settings` - Application settings
+- `/profile` - User profile and preferences
+- `/design-system` - Design system documentation
 
 ## Environment Variables
 
@@ -134,6 +151,30 @@ src/
 - Create and track support tickets
 - Real-time ticket updates
 - Category-based ticket management
+
+### Smart Meters
+- View registered smart meters
+- Sync meter data
+- Monitor connection status
+- Track last sync time
+
+### AI Advisor
+- Chat-based energy advisor
+- Plan recommendations
+- Savings calculations
+- Market research assistance
+
+### Services & Plans
+- Browse available energy plans
+- View current subscription
+- Compare plan features
+- Subscribe or change plans
+
+### Error Handling
+- Consistent error messages across the app
+- User-friendly error states
+- Empty state components
+- Success notifications
 
 ## Demo Credentials
 

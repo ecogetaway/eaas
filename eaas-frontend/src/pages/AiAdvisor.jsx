@@ -35,7 +35,7 @@ const AiAdvisor = () => {
   };
 
   const handleSend = async () => {
-    if (!inputValue.trim() || isTyping) return;
+    if (!inputValue.trim() || !user?.userId) return;
 
     const newUserMsg = {
       id: Date.now().toString(),
@@ -45,15 +45,19 @@ const AiAdvisor = () => {
     };
 
     setMessages(prev => [...prev, newUserMsg]);
-    const messageToSend = inputValue;
     setInputValue('');
     setIsTyping(true);
 
     try {
+      const history = messages.map(m => ({
+        role: m.role,
+        text: m.text
+      }));
+
       const responseText = await aiAdvisorService.sendMessage(
-        user?.userId,
-        messageToSend,
-        messages
+        user.userId,
+        inputValue,
+        history
       );
 
       const newAiMsg = {
@@ -63,11 +67,12 @@ const AiAdvisor = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, newAiMsg]);
-    } catch (error) {
+    } catch (err) {
+      console.error('AI Advisor error:', err);
       const errorMsg = {
         id: (Date.now() + 1).toString(),
         role: 'model',
-        text: error.message || "I'm having trouble connecting right now. Please try again later.",
+        text: 'I apologize, but I encountered an error. Please try again later.',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -76,47 +81,11 @@ const AiAdvisor = () => {
     }
   };
 
-  const handleQuickPrompt = async (action) => {
-    const message = aiAdvisorService.getQuickActionMessage(action);
-    
-    const newUserMsg = {
-      id: Date.now().toString(),
-      role: 'user',
-      text: message,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, newUserMsg]);
-    setIsTyping(true);
-
-    try {
-      const responseText = await aiAdvisorService.sendMessage(
-        user?.userId,
-        message,
-        messages
-      );
-
-      const newAiMsg = {
-        id: (Date.now() + 1).toString(),
-        role: 'model',
-        text: responseText,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, newAiMsg]);
-    } catch (error) {
-      const errorMsg = {
-        id: (Date.now() + 1).toString(),
-        role: 'model',
-        text: error.message || "I'm having trouble connecting right now. Please try again later.",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMsg]);
-    } finally {
-      setIsTyping(false);
-    }
+  const handleQuickPrompt = (text) => {
+    setInputValue(text);
   };
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return null;
   }
 
@@ -163,6 +132,11 @@ const AiAdvisor = () => {
                         : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'}
                     `}>
                       {msg.text}
+                      <div className={`text-xs mt-2 opacity-70 ${
+                        msg.role === 'user' ? 'text-gray-300' : 'text-gray-500'
+                      }`}>
+                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -182,29 +156,27 @@ const AiAdvisor = () => {
             </div>
 
             {/* Suggested Prompts */}
-            {messages.length === 1 && (
-              <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 overflow-x-auto flex space-x-3">
-                <button 
-                  onClick={() => handleQuickPrompt('research')}
-                  className="flex items-center space-x-2 px-3 py-1.5 bg-white border border-brand-200 text-brand-700 rounded-full text-xs hover:bg-brand-50 whitespace-nowrap transition-colors"
-                >
-                  <Search className="w-3 h-3" />
-                  <span>Research Competitors</span>
-                </button>
-                <button 
-                  onClick={() => handleQuickPrompt('savings')}
-                  className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-xs hover:bg-gray-100 whitespace-nowrap transition-colors"
-                >
-                  Calculate Savings
-                </button>
-                <button 
-                  onClick={() => handleQuickPrompt('issue')}
-                  className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-xs hover:bg-gray-100 whitespace-nowrap transition-colors"
-                >
-                  Report Issue
-                </button>
-              </div>
-            )}
+            <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 overflow-x-auto flex space-x-3">
+              <button 
+                onClick={() => handleQuickPrompt(aiAdvisorService.getQuickActionMessage('research'))}
+                className="flex items-center space-x-2 px-3 py-1.5 bg-white border border-brand-200 text-brand-700 rounded-full text-xs hover:bg-brand-50 whitespace-nowrap transition-colors"
+              >
+                <Search className="w-3 h-3" />
+                <span>Research Competitors</span>
+              </button>
+              <button 
+                onClick={() => handleQuickPrompt(aiAdvisorService.getQuickActionMessage('savings'))}
+                className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-xs hover:bg-gray-100 whitespace-nowrap transition-colors"
+              >
+                Calculate Savings
+              </button>
+              <button 
+                onClick={() => handleQuickPrompt(aiAdvisorService.getQuickActionMessage('issue'))}
+                className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-xs hover:bg-gray-100 whitespace-nowrap transition-colors"
+              >
+                Report Issue
+              </button>
+            </div>
 
             {/* Input Area */}
             <div className="p-4 bg-white border-t border-gray-200">
@@ -234,4 +206,3 @@ const AiAdvisor = () => {
 };
 
 export default AiAdvisor;
-

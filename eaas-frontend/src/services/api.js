@@ -24,34 +24,54 @@ api.interceptors.request.use(
   }
 );
 
-// Handle auth errors
+// Handle auth errors and standardize error messages
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL,
-      }
-    });
-    
-    // Handle network errors (backend not available)
-    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-      const errorMessage = 'Backend API is not available. Please ensure the backend server is running.';
-      error.userMessage = errorMessage;
-      console.error(errorMessage);
-      console.error('API URL:', error.config?.baseURL);
+    // Don't log 404s for expected empty states (like no meters)
+    if (error.response?.status !== 404) {
+      console.error('API Error:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          baseURL: error.config?.baseURL,
+        }
+      });
     }
     
+    // Handle network errors (backend not available)
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error' || error.code === 'ECONNREFUSED') {
+      const errorMessage = 'Unable to connect to the server. Please check your connection and try again.';
+      error.userMessage = errorMessage;
+      error.isNetworkError = true;
+    }
+    
+    // Handle timeout errors
+    if (error.code === 'ECONNABORTED') {
+      const errorMessage = 'Request timed out. Please try again.';
+      error.userMessage = errorMessage;
+    }
+    
+    // Handle 401 Unauthorized - redirect to login
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Only redirect if not already on login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
+    
+    // Add user-friendly message from response if available
+    if (error.response?.data?.error && !error.userMessage) {
+      error.userMessage = error.response.data.error;
+    } else if (error.response?.data?.message && !error.userMessage) {
+      error.userMessage = error.response.data.message;
+    }
+    
     return Promise.reject(error);
   }
 );

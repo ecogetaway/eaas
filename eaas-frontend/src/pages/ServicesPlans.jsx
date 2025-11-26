@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth.js';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar.jsx';
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
+import ErrorMessage from '../components/common/ErrorMessage.jsx';
 import { subscriptionService } from '../services/subscriptionService.js';
 import { Check, CloudLightning } from 'lucide-react';
 
@@ -53,6 +54,7 @@ const ServicesPlans = () => {
   const navigate = useNavigate();
   const [currentPlanId, setCurrentPlanId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!user?.userId) {
@@ -67,15 +69,16 @@ const ServicesPlans = () => {
     
     try {
       setLoading(true);
+      setError('');
       const subscriptions = await subscriptionService.getUserSubscriptions(user.userId);
       if (subscriptions && subscriptions.length > 0) {
         // Map subscription plan_type to plan id
         const planType = subscriptions[0].plan_type || subscriptions[0].plan_name?.toLowerCase();
         if (planType?.includes('starter') || planType?.includes('basic')) {
           setCurrentPlanId('basic');
-        } else if (planType?.includes('hybrid') || planType?.includes('pro')) {
+        } else if (planType?.includes('hybrid') || planType?.includes('pro') || planType?.includes('solar_battery')) {
           setCurrentPlanId('pro');
-        } else if (planType?.includes('independent') || planType?.includes('max')) {
+        } else if (planType?.includes('independent') || planType?.includes('max') || planType?.includes('premium')) {
           setCurrentPlanId('max');
         } else {
           // Default to pro if plan type doesn't match
@@ -84,6 +87,7 @@ const ServicesPlans = () => {
       }
     } catch (error) {
       console.error('Error loading subscription:', error);
+      setError('Failed to load subscription information. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -111,11 +115,17 @@ const ServicesPlans = () => {
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Energy Freedom</h2>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Energy Freedom</h1>
             <p className="text-gray-500 max-w-2xl mx-auto">
               Stop paying for unpredictable utility bills. Subscribe to a plan that gives you hardware, maintenance, and software in one monthly fee.
             </p>
           </div>
+
+          {error && (
+            <div className="mb-6">
+              <ErrorMessage message={error} onDismiss={() => setError('')} />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan) => {

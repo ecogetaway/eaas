@@ -51,6 +51,29 @@ This directory contains comprehensive end-to-end tests for the Energy-as-a-Servi
 - Update notification preferences
 - View subscription details
 
+### 8. Smart Meters Management (`meters.spec.js`) ⭐ NEW
+- Meters page loads and displays meters
+- Meter cards show details (meter number, device type, firmware, etc.)
+- Connection status indicators (online/offline/warning)
+- Sync meter functionality
+- Empty state handling
+- Authentication requirement
+- Error handling
+- Loading states during sync
+
+### 9. AI Advisor (`ai-advisor.spec.js`)
+- AI Advisor page displays chat interface
+- Send messages and receive responses
+- Quick action buttons
+- Typing indicator
+- Navigation accessibility
+
+### 10. Settings (`settings.spec.js`)
+- Settings page displays
+- Configuration content
+- Navigation accessibility
+- Authentication requirement
+
 ## Setup
 
 1. Install dependencies:

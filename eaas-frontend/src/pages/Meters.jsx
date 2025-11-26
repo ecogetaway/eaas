@@ -3,14 +3,21 @@ import { useAuth } from '../hooks/useAuth.js';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar.jsx';
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
+import EmptyState from '../components/common/EmptyState.jsx';
+import ErrorMessage from '../components/common/ErrorMessage.jsx';
+import SuccessMessage from '../components/common/SuccessMessage.jsx';
 import { formatDateTime, getTimeAgo } from '../utils/formatters.js';
 import { Activity, Wifi, WifiOff, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+import { meterService } from '../services/meterService.js';
 
 const Meters = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [meters, setMeters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState({});
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     if (!user?.userId) {
@@ -23,23 +30,18 @@ const Meters = () => {
   const loadMeters = async () => {
     try {
       setLoading(true);
-      // Mock data for now - would fetch from backend API
-      const mockMeters = [
-        {
-          meter_id: '1',
-          device_type: 'smart_meter',
-          manufacturer: 'Schneider Electric',
-          model: 'ION7650',
-          firmware_version: '2.1.5',
-          last_sync: new Date().toISOString(),
-          sync_status: 'synced',
-          connection_status: 'online',
-          calibration_date: '2024-01-15',
-        },
-      ];
-      setMeters(mockMeters);
+      setError('');
+      const metersData = await meterService.getUserMeters(user.userId);
+      setMeters(metersData || []);
     } catch (error) {
       console.error('Error loading meters:', error);
+      // Show user-friendly error message
+      if (error.response?.status === 404) {
+        // No meters found - this is okay, show empty state
+        setMeters([]);
+      } else {
+        setError('Failed to load meters. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -47,13 +49,26 @@ const Meters = () => {
 
   const handleSync = async (meterId) => {
     try {
-      // Sync endpoint would be added to backend
-      alert('Sync initiated. This may take a few moments.');
-      setTimeout(() => {
-        loadMeters();
-      }, 2000);
+      setSyncing(prev => ({ ...prev, [meterId]: true }));
+      setError('');
+      setSuccess('');
+      const updatedMeter = await meterService.syncMeter(meterId);
+      
+      // Update the meter in the list
+      setMeters(prevMeters =>
+        prevMeters.map(meter =>
+          meter.meter_id === meterId ? updatedMeter : meter
+        )
+      );
+      
+      setSuccess('Meter synced successfully!');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
-      alert('Failed to sync meter. Please try again.');
+      console.error('Error syncing meter:', error);
+      setError('Failed to sync meter. Please try again.');
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setSyncing(prev => ({ ...prev, [meterId]: false }));
     }
   };
 
@@ -75,38 +90,66 @@ const Meters = () => {
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Smart Meters</h1>
 
-          {meters.length === 0 ? (
-            <div className="card text-center py-12">
-              <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-2xl font-semibold mb-2">No Meters Found</h2>
-              <p className="text-gray-500">No smart meters are currently registered to your account.</p>
+          {error && (
+            <div className="mb-6">
+              <ErrorMessage message={error} onDismiss={() => setError('')} />
             </div>
+          )}
+
+          {success && (
+            <div className="mb-6">
+              <SuccessMessage message={success} onDismiss={() => setSuccess('')} />
+            </div>
+          )}
+
+          {meters.length === 0 && !loading ? (
+            <EmptyState
+              icon={Activity}
+              title="No Meters Found"
+              description="No smart meters are currently registered to your account."
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {meters.map((meter) => (
                 <div key={meter.meter_id} className="card">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold mb-1">{meter.device_type.replace('_', ' ').toUpperCase()}</h3>
-                      <p className="text-sm text-gray-600">{meter.manufacturer} {meter.model}</p>
+                      <h3 className="text-lg font-semibold mb-1">
+                        {meter.device_type ? meter.device_type.replace('_', ' ').toUpperCase() : 'SMART METER'}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {meter.communication_protocol || 'MQTT'} Protocol
+                      </p>
                     </div>
                     <div className="flex items-center">
                       {meter.connection_status === 'online' ? (
-                        <Wifi className="w-5 h-5 text-green-600" />
+                        <Wifi className="w-5 h-5 text-green-600" title="Online" />
+                      ) : meter.connection_status === 'warning' ? (
+                        <Wifi className="w-5 h-5 text-yellow-600" title="Warning" />
                       ) : (
-                        <WifiOff className="w-5 h-5 text-red-600" />
+                        <WifiOff className="w-5 h-5 text-red-600" title="Offline" />
                       )}
                     </div>
                   </div>
 
                   <div className="space-y-3 border-t pt-4">
                     <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Meter Number</span>
+                      <span className="font-medium">{meter.meter_number}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Device Type</span>
+                      <span className="font-medium">{meter.device_type || 'Smart Energy Meter'}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Firmware Version</span>
-                      <span className="font-medium">{meter.firmware_version}</span>
+                      <span className="font-medium">{meter.firmware_version || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Last Sync</span>
-                      <span className="font-medium">{getTimeAgo(meter.last_sync)}</span>
+                      <span className="font-medium">
+                        {meter.last_sync ? getTimeAgo(meter.last_sync) : 'Never'}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Sync Status</span>
@@ -126,19 +169,24 @@ const Meters = () => {
                         )}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Calibration Date</span>
-                      <span className="font-medium">{new Date(meter.calibration_date).toLocaleDateString()}</span>
-                    </div>
+                    {meter.calibration_date && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Calibration Date</span>
+                        <span className="font-medium">
+                          {new Date(meter.calibration_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-4 pt-4 border-t">
                     <button
                       onClick={() => handleSync(meter.meter_id)}
-                      className="btn btn-outline w-full flex items-center justify-center"
+                      disabled={syncing[meter.meter_id]}
+                      className="btn btn-outline w-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Sync Now
+                      <RefreshCw className={`w-4 h-4 mr-2 ${syncing[meter.meter_id] ? 'animate-spin' : ''}`} />
+                      {syncing[meter.meter_id] ? 'Syncing...' : 'Sync Now'}
                     </button>
                   </div>
                 </div>

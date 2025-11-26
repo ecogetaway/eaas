@@ -3,6 +3,9 @@ import { useAuth } from '../hooks/useAuth.js';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar.jsx';
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
+import ErrorMessage from '../components/common/ErrorMessage.jsx';
+import SuccessMessage from '../components/common/SuccessMessage.jsx';
+import EmptyState from '../components/common/EmptyState.jsx';
 import { subscriptionService } from '../services/subscriptionService.js';
 import { formatCurrency, formatDate } from '../utils/formatters.js';
 import { Package, Calendar, Zap, Battery, TrendingUp, X } from 'lucide-react';
@@ -72,17 +75,13 @@ const Subscription = () => {
         <Navbar />
         <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="card text-center py-12">
-              <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-2xl font-semibold mb-2">No Active Subscription</h2>
-              <p className="text-gray-500 mb-6">You don't have an active subscription yet.</p>
-              <button
-                onClick={() => navigate('/onboarding')}
-                className="btn btn-primary"
-              >
-                Subscribe Now
-              </button>
-            </div>
+            <EmptyState
+              icon={Package}
+              title="No Active Subscription"
+              description="You don't have an active subscription yet. Get started by choosing a plan that fits your energy needs."
+              actionLabel="Subscribe Now"
+              onAction={() => navigate('/onboarding')}
+            />
           </div>
         </main>
       </div>
@@ -99,14 +98,14 @@ const Subscription = () => {
           <h1 className="text-3xl font-bold mb-8">My Subscription</h1>
 
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
+            <div className="mb-6">
+              <ErrorMessage message={error} onDismiss={() => setError('')} />
             </div>
           )}
 
           {success && (
-            <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-              {success}
+            <div className="mb-6">
+              <SuccessMessage message={success} onDismiss={() => setSuccess('')} />
             </div>
           )}
 

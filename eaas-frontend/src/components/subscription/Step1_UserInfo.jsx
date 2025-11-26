@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { subscriptionService } from '../../services/subscriptionService.js';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
+import ErrorMessage from '../common/ErrorMessage.jsx';
 
 const Step1_UserInfo = ({ formData, setFormData, onNext }) => {
   const [address, setAddress] = useState(formData.address || '');
   const [monthlyBill, setMonthlyBill] = useState(formData.monthlyBill || '');
   const [recommendedPlan, setRecommendedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (monthlyBill && parseFloat(monthlyBill) > 0) {
@@ -17,10 +19,12 @@ const Step1_UserInfo = ({ formData, setFormData, onNext }) => {
   const loadRecommendation = async () => {
     try {
       setLoading(true);
+      setError('');
       const data = await subscriptionService.recommendPlan(parseFloat(monthlyBill));
       setRecommendedPlan(data);
     } catch (error) {
       console.error('Error loading recommendation:', error);
+      setError('Failed to load plan recommendation. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -28,14 +32,19 @@ const Step1_UserInfo = ({ formData, setFormData, onNext }) => {
 
   const handleNext = () => {
     if (!address || !monthlyBill) {
-      alert('Please fill in all fields');
+      setError('Please fill in all fields');
       return;
     }
+    if (parseFloat(monthlyBill) <= 0) {
+      setError('Please enter a valid monthly bill amount');
+      return;
+    }
+    setError('');
     setFormData({ 
       ...formData, 
       address, 
       monthlyBill,
-      recommendedPlanId: recommendedPlan?.recommended || null
+      recommendedPlanId: recommendedPlan?.recommended?.plan_id || null
     });
     onNext();
   };
@@ -45,6 +54,10 @@ const Step1_UserInfo = ({ formData, setFormData, onNext }) => {
       <h2 className="text-2xl font-bold mb-6">Tell us about yourself</h2>
 
       <div className="space-y-6">
+        {error && (
+          <ErrorMessage message={error} onDismiss={() => setError('')} />
+        )}
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Address
@@ -55,6 +68,7 @@ const Step1_UserInfo = ({ formData, setFormData, onNext }) => {
             className="input"
             rows={3}
             placeholder="Enter your complete address"
+            required
           />
         </div>
 

@@ -3,6 +3,8 @@ import { useAuth } from '../hooks/useAuth.js';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar.jsx';
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
+import ErrorMessage from '../components/common/ErrorMessage.jsx';
+import SuccessMessage from '../components/common/SuccessMessage.jsx';
 import { authService } from '../services/authService.js';
 import { User, Save, Lock } from 'lucide-react';
 
@@ -145,14 +147,14 @@ const Profile = () => {
           <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
 
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
+            <div className="mb-6">
+              <ErrorMessage message={error} onDismiss={() => setError('')} />
             </div>
           )}
 
           {success && (
-            <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-              {success}
+            <div className="mb-6">
+              <SuccessMessage message={success} onDismiss={() => setSuccess('')} />
             </div>
           )}
 

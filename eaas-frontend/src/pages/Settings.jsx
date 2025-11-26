@@ -2,10 +2,10 @@ import { useAuth } from '../hooks/useAuth.js';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from '../components/common/Navbar.jsx';
-import { Settings as SettingsIcon } from 'lucide-react';
+import { Settings as SettingsIcon, User, Bell, Shield, Link2 } from 'lucide-react';
 
 const Settings = () => {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const Settings = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return null;
   }
 
@@ -25,28 +25,73 @@ const Settings = () => {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Settings</h1>
           
-          <div className="p-8 text-center text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
-            <SettingsIcon className="w-12 h-12 mx-auto mb-4 opacity-20" />
-            <h2 className="text-xl font-semibold mb-2">Settings Configuration</h2>
-            <p>Integration with Smart Meter and DISCOM approvals managed here.</p>
-            
-            {/* Optional: Add status indicators */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Smart Meter Status</h3>
-                <div className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-600">Connected</span>
-                </div>
+          <div className="space-y-6">
+            {/* Account Settings */}
+            <section className="card">
+              <div className="flex items-center mb-6">
+                <User className="w-6 h-6 text-primary-600 mr-2" />
+                <h2 className="text-xl font-semibold">Account Settings</h2>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">DISCOM Approval</h3>
-                <div className="flex items-center">
-                  <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-600">Pending</span>
-                </div>
+              <p className="text-gray-600 mb-4">
+                Manage your account information and preferences.
+              </p>
+              <button
+                onClick={() => navigate('/profile')}
+                className="btn btn-outline"
+              >
+                Go to Profile
+              </button>
+            </section>
+
+            {/* Notification Settings */}
+            <section className="card">
+              <div className="flex items-center mb-6">
+                <Bell className="w-6 h-6 text-primary-600 mr-2" />
+                <h2 className="text-xl font-semibold">Notification Preferences</h2>
               </div>
-            </div>
+              <p className="text-gray-600 mb-4">
+                Configure how you receive notifications about your energy system.
+              </p>
+              <button
+                onClick={() => navigate('/profile')}
+                className="btn btn-outline"
+              >
+                Manage Notifications
+              </button>
+            </section>
+
+            {/* Smart Meter Integration */}
+            <section className="card">
+              <div className="flex items-center mb-6">
+                <Link2 className="w-6 h-6 text-primary-600 mr-2" />
+                <h2 className="text-xl font-semibold">Smart Meter Integration</h2>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Connect and manage your smart meters for real-time energy monitoring.
+              </p>
+              <button
+                onClick={() => navigate('/meters')}
+                className="btn btn-outline"
+              >
+                Manage Meters
+              </button>
+            </section>
+
+            {/* DISCOM Integration */}
+            <section className="card">
+              <div className="flex items-center mb-6">
+                <Shield className="w-6 h-6 text-primary-600 mr-2" />
+                <h2 className="text-xl font-semibold">DISCOM Approvals</h2>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Integration with Smart Meter and DISCOM approvals managed here.
+              </p>
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-500">
+                  DISCOM integration features will be available soon. Contact support for assistance with utility approvals.
+                </p>
+              </div>
+            </section>
           </div>
         </div>
       </main>
@@ -55,4 +100,3 @@ const Settings = () => {
 };
 
 export default Settings;
-

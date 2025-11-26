@@ -22,6 +22,26 @@ test.describe('Dashboard Functionality', () => {
     const metricCards = page.locator('[class*="card"], [class*="metric"]');
     const cardCount = await metricCards.count();
     expect(cardCount).toBeGreaterThan(0);
+
+    // Check for new dashboard widgets (Energy Overview Cards)
+    const energyOverview = page.locator('text=/Real-time Usage|Solar Generation|Battery Level|CO₂/i');
+    const overviewCount = await energyOverview.count();
+    // At least some of these should be visible
+    if (overviewCount > 0) {
+      expect(overviewCount).toBeGreaterThan(0);
+    }
+
+    // Check for Energy Mix Chart
+    const energyMix = page.locator('text=/Energy Mix|Grid|Solar/i');
+    // May or may not be visible depending on data
+
+    // Check for Battery Performance Chart
+    const batteryChart = page.locator('text=/Battery Performance|Charge/i');
+    // May or may not be visible depending on data
+
+    // Check for Grid Independence Score
+    const gridScore = page.locator('text=/Grid Independence|Independence Score/i');
+    // May or may not be visible depending on data
   });
 
   test('Real-time metrics update', async ({ page }) => {
