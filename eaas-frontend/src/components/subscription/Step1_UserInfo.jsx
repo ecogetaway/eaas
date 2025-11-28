@@ -24,7 +24,10 @@ const Step1_UserInfo = ({ formData, setFormData, onNext }) => {
       setRecommendedPlan(data);
     } catch (error) {
       console.error('Error loading recommendation:', error);
-      setError('Failed to load plan recommendation. Please try again.');
+      const errorMessage = error.userMessage || error.response?.data?.error || error.message || 'Failed to load plan recommendation. Please try again.';
+      setError(errorMessage);
+      // Don't block the flow - user can still proceed without recommendation
+      setRecommendedPlan(null);
     } finally {
       setLoading(false);
     }

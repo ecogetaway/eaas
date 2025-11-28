@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import Navbar from '../components/common/Navbar.jsx';
+import ErrorBoundary from '../components/common/ErrorBoundary.jsx';
 import StepIndicator from '../components/subscription/StepIndicator.jsx';
 import Step1_UserInfo from '../components/subscription/Step1_UserInfo.jsx';
 import Step2_PlanSelection from '../components/subscription/Step2_PlanSelection.jsx';
@@ -36,38 +37,46 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
-      <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <StepIndicator currentStep={currentStep} totalSteps={3} />
-          
-          {currentStep === 1 && (
-            <Step1_UserInfo
-              formData={formData}
-              setFormData={setFormData}
-              onNext={handleNext}
-            />
-          )}
-          
-          {currentStep === 2 && (
-            <Step2_PlanSelection
-              formData={formData}
-              setFormData={setFormData}
-              onNext={handleNext}
-              onBack={handleBack}
-            />
-          )}
-          
-          {currentStep === 3 && (
-            <Step3_Payment
-              formData={formData}
-              onBack={handleBack}
-            />
-          )}
-        </div>
-      </main>
-    </div>
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Navbar />
+        <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <StepIndicator currentStep={currentStep} totalSteps={3} />
+            
+            <ErrorBoundary>
+              {currentStep === 1 && (
+                <Step1_UserInfo
+                  formData={formData}
+                  setFormData={setFormData}
+                  onNext={handleNext}
+                />
+              )}
+            </ErrorBoundary>
+            
+            <ErrorBoundary>
+              {currentStep === 2 && (
+                <Step2_PlanSelection
+                  formData={formData}
+                  setFormData={setFormData}
+                  onNext={handleNext}
+                  onBack={handleBack}
+                />
+              )}
+            </ErrorBoundary>
+            
+            <ErrorBoundary>
+              {currentStep === 3 && (
+                <Step3_Payment
+                  formData={formData}
+                  onBack={handleBack}
+                />
+              )}
+            </ErrorBoundary>
+          </div>
+        </main>
+      </div>
+    </ErrorBoundary>
   );
 };
 

@@ -21,10 +21,15 @@ const Step2_PlanSelection = ({ formData, setFormData, onNext, onBack }) => {
       setLoading(true);
       setError('');
       const data = await subscriptionService.getPlans();
+      
+      if (!data || !Array.isArray(data)) {
+        throw new Error('Invalid plans data received');
+      }
+      
       setPlans(data);
       
       // Auto-select recommended plan if available
-      if (formData.recommendedPlanId) {
+      if (formData.recommendedPlanId && data.length > 0) {
         const recommended = data.find(p => p.plan_id === formData.recommendedPlanId);
         if (recommended) {
           setSelectedPlan(recommended.plan_id);
@@ -32,7 +37,10 @@ const Step2_PlanSelection = ({ formData, setFormData, onNext, onBack }) => {
       }
     } catch (error) {
       console.error('Error loading plans:', error);
-      setError('Failed to load plans. Please try again.');
+      const errorMessage = error.userMessage || error.response?.data?.error || error.message || 'Failed to load plans. Please check your connection and try again.';
+      setError(errorMessage);
+      // Set empty plans array to prevent rendering errors
+      setPlans([]);
     } finally {
       setLoading(false);
     }

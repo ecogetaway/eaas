@@ -38,7 +38,8 @@ const Step3_Payment = ({ formData, onBack }) => {
       setShowPaymentModal(true);
     } catch (error) {
       console.error('Error creating subscription:', error);
-      setError(error.response?.data?.error || 'Error creating subscription. Please try again.');
+      const errorMessage = error.userMessage || error.response?.data?.error || error.message || 'Error creating subscription. Please try again.';
+      setError(errorMessage);
     }
   };
 

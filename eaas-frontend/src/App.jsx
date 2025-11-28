@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { useAuth } from './hooks/useAuth.js';
+import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
@@ -136,11 +137,13 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
