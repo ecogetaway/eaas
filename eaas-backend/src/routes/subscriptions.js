@@ -6,8 +6,8 @@ import { validateSubscription } from '../middleware/validation.js';
 const router = express.Router();
 
 router.get('/plans', subscriptionController.getPlans);
+router.get('/plans/recommend', subscriptionController.recommendPlan); // Must come before /plans/:planId
 router.get('/plans/:planId', subscriptionController.getPlanById);
-router.get('/plans/recommend', subscriptionController.recommendPlan);
 router.post('/', authenticate, validateSubscription, subscriptionController.createSubscription);
 router.get('/user/:userId?', authenticate, subscriptionController.getUserSubscriptions);
 router.get('/:subscriptionId', authenticate, subscriptionController.getSubscriptionById);
