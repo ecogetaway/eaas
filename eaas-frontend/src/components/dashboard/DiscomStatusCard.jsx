@@ -78,14 +78,17 @@ const DiscomStatusCard = ({ userId }) => {
   const getStatusText = () => {
     const statusLabels = {
       'submitted': 'Submitted',
-      'under_review': 'Under Review',
       'document_verification': 'Documents Verified',
+      'feasibility_study': 'Feasibility Study',
       'site_inspection_scheduled': 'Inspection Scheduled',
       'site_inspection_completed': 'Inspection Done',
       'technical_approval': 'Technical Approved',
+      'system_installation': 'System Installation',
+      'inspection_documentation': 'Inspection & Docs',
       'meter_installation': 'Installing Meter',
       'grid_sync_pending': 'Sync Pending',
-      'approved': 'Approved',
+      'grid_synchronized': 'Grid Synced',
+      'commissioning_complete': 'Commissioning',
       'grid_connected': 'Grid Connected'
     };
     return statusLabels[application.status] || application.status;

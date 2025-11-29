@@ -1,21 +1,14 @@
 import api from './api.js';
-import { mockDiscomStatus } from '../data/mockData.js';
+import { mockDiscomStatus, mockDiscomApplication, DISCOM_STATUSES, REQUIRED_DOCUMENTS } from '../data/mockData.js';
 
 // For demo: Use mock data as primary source
 const USE_MOCK_DATA = true; // Set to false to use real backend
 
-// Mock application data
+// Mock application data - using enhanced structure
 let mockApplications = [
   {
-    application_id: 'app_001',
-    user_id: 'user_123',
-    discom_name: 'BESCOM',
-    consumer_number: 'CON123456789',
-    status: 'approved',
-    submitted_at: '2024-10-15T10:00:00Z',
-    approved_at: '2024-10-20T14:30:00Z',
-    agreement_number: 'AGR123456',
-    sanctioned_load: 5.0
+    ...mockDiscomApplication,
+    user_id: 'user_123'
   }
 ];
 
@@ -70,16 +63,41 @@ export const discomService = {
   submitApplication: async (applicationData) => {
     if (USE_MOCK_DATA) {
       await new Promise(resolve => setTimeout(resolve, 800));
+      const applicationNumber = `DISCOM-2024-${String(Date.now()).slice(-6)}`;
       const newApplication = {
+        ...mockDiscomApplication,
         application_id: `app_${Date.now()}`,
+        application_number: applicationNumber,
         user_id: applicationData.user_id || 'user_123',
-        discom_name: applicationData.discom_name || 'BESCOM',
+        discom_name: applicationData.electricity_provider || 'BESCOM',
         consumer_number: applicationData.consumer_number,
         status: 'submitted',
         submitted_at: new Date().toISOString(),
         approved_at: null,
         agreement_number: null,
-        sanctioned_load: applicationData.sanctioned_load || 5.0,
+        sanctioned_load: applicationData.sanctioned_load_kw || 5.0,
+        solar_capacity_kw: applicationData.solar_capacity_kw,
+        property_type: applicationData.property_type,
+        property_address: applicationData.property_address,
+        electricity_provider: applicationData.electricity_provider,
+        installation_type: applicationData.installation_type,
+        roof_area_sqft: applicationData.roof_area_sqft,
+        // Initialize documents as required
+        documents: REQUIRED_DOCUMENTS.map(doc => ({
+          id: doc.id,
+          name: doc.name,
+          description: doc.description,
+          status: 'required',
+          uploaded_at: null,
+          verified_at: null
+        })),
+        // Remove advanced stages for new application
+        feasibility_study: null,
+        technical_approval: null,
+        system_installation: null,
+        inspection_documentation: null,
+        grid_sync: null,
+        commissioning: null,
         ...applicationData
       };
       mockApplications.unshift(newApplication);
@@ -107,16 +125,106 @@ export const discomService = {
   getApplicationStatus: async (userId) => {
     if (USE_MOCK_DATA) {
       await new Promise(resolve => setTimeout(resolve, 400));
-      const application = mockApplications.find(app => app.user_id === userId) || mockApplications[0];
+      let application = mockApplications.find(app => app.user_id === userId);
+      
+      // If no application found, create a new one in 'submitted' status
+      if (!application) {
+        application = {
+          ...mockDiscomApplication,
+          user_id: userId,
+          status: 'submitted',
+          submitted_at: new Date().toISOString(),
+          documents: REQUIRED_DOCUMENTS.map(doc => ({
+            id: doc.id,
+            name: doc.name,
+            description: doc.description,
+            status: 'required',
+            uploaded_at: null,
+            verified_at: null
+          }))
+        };
+        mockApplications.push(application);
+      }
+      
+      // Calculate current status index and progress
+      const currentStatusIndex = DISCOM_STATUSES.indexOf(application.status);
+      const progressPercentage = Math.round(((currentStatusIndex + 1) / DISCOM_STATUSES.length) * 100);
+      
+      // Build timeline with all statuses
+      const timeline = [];
+      const baseDate = new Date(application.submitted_at);
+      
+      DISCOM_STATUSES.forEach((status, index) => {
+        if (index <= currentStatusIndex) {
+          const statusDate = new Date(baseDate);
+          statusDate.setDate(statusDate.getDate() + (index * 2)); // 2 days per stage
+          
+          let message = '';
+          switch (status) {
+            case 'submitted':
+              message = 'Application submitted with required documents';
+              break;
+            case 'document_verification':
+              message = 'Documents verified by DISCOM';
+              break;
+            case 'feasibility_study':
+              message = 'Feasibility study completed - Grid capacity checked';
+              break;
+            case 'site_inspection_scheduled':
+              message = 'Site inspection scheduled';
+              break;
+            case 'site_inspection_completed':
+              message = 'Site inspection completed successfully';
+              break;
+            case 'technical_approval':
+              message = 'Technical approval letter issued';
+              break;
+            case 'system_installation':
+              message = 'Solar system installation completed';
+              break;
+            case 'inspection_documentation':
+              message = 'Inspection completed and documentation submitted';
+              break;
+            case 'meter_installation':
+              message = 'Bi-directional meter installed';
+              break;
+            case 'grid_sync_pending':
+              message = 'Grid synchronization pending';
+              break;
+            case 'grid_synchronized':
+              message = 'Grid synchronized successfully';
+              break;
+            case 'commissioning_complete':
+              message = 'Commissioning completed';
+              break;
+            case 'grid_connected':
+              message = 'System fully connected and operational';
+              break;
+            default:
+              message = `${status.replace(/_/g, ' ')} completed`;
+          }
+          
+          timeline.push({
+            status,
+            timestamp: statusDate.toISOString(),
+            message
+          });
+        }
+      });
+      
       return {
-        status: mockDiscomStatus,
+        hasApplication: true,
         application,
-        timeline: [
-          { status: 'submitted', date: application.submitted_at, description: 'Application submitted' },
-          { status: 'under_review', date: new Date(Date.parse(application.submitted_at) + 2 * 24 * 60 * 60 * 1000).toISOString(), description: 'Under review by DISCOM' },
-          { status: 'site_inspection', date: new Date(Date.parse(application.submitted_at) + 4 * 24 * 60 * 60 * 1000).toISOString(), description: 'Site inspection completed' },
-          { status: 'approved', date: application.approved_at || new Date().toISOString(), description: 'Application approved' }
-        ]
+        timeline,
+        currentStatusIndex,
+        allStatuses: DISCOM_STATUSES,
+        progressPercentage,
+        feasibility_study: application.feasibility_study,
+        technical_approval: application.technical_approval,
+        system_installation: application.system_installation,
+        inspection_documentation: application.inspection_documentation,
+        grid_sync: application.grid_sync,
+        commissioning: application.commissioning
       };
     }
     
@@ -127,9 +235,12 @@ export const discomService = {
       console.warn('Using mock application status');
       const application = mockApplications[0];
       return {
-        status: mockDiscomStatus,
+        hasApplication: true,
         application,
-        timeline: []
+        timeline: [],
+        currentStatusIndex: 0,
+        allStatuses: DISCOM_STATUSES,
+        progressPercentage: 0
       };
     }
   },

@@ -293,6 +293,51 @@ export const mockAlerts = [
   }
 ];
 
+// DISCOM Status Stages (6-step real-world process)
+export const DISCOM_STATUSES = [
+  'submitted',                    // Step 1: Application submitted
+  'document_verification',        // Step 1: Documents being verified
+  'feasibility_study',           // Step 2: Feasibility study in progress
+  'site_inspection_scheduled',   // Step 2: Site inspection scheduled
+  'site_inspection_completed',    // Step 2: Site inspection done
+  'technical_approval',          // Step 2: Technical approval issued
+  'system_installation',          // Step 3: Solar system installation
+  'inspection_documentation',    // Step 4: Inspection and documentation
+  'meter_installation',           // Step 5: Net meter installation
+  'grid_sync_pending',            // Step 5: Grid sync pending
+  'grid_synchronized',            // Step 5: Grid synchronized
+  'commissioning_complete',       // Step 6: Commissioning complete
+  'grid_connected'                // Final: Fully connected and operational
+];
+
+// Required Documents for Net Metering Application
+export const REQUIRED_DOCUMENTS = [
+  {
+    id: 'identity_proof',
+    name: 'Identity Proof',
+    description: 'Aadhaar, PAN, or Driving License',
+    required: true
+  },
+  {
+    id: 'property_ownership',
+    name: 'Property Ownership Proof',
+    description: 'Sale Deed, Property Tax Receipt, or NOC (for tenants)',
+    required: true
+  },
+  {
+    id: 'electricity_bill',
+    name: 'Latest Electricity Bill',
+    description: 'Most recent electricity bill from DISCOM',
+    required: true
+  },
+  {
+    id: 'site_plan',
+    name: 'Site Plan/Sketch',
+    description: 'Optional: Site layout sketch',
+    required: false
+  }
+];
+
 export const mockDiscomStatus = {
   integration_id: 'discom_001',
   user_id: 'user_123',
@@ -306,6 +351,156 @@ export const mockDiscomStatus = {
   last_sync_at: new Date().toISOString(),
   sync_errors: [],
   created_at: '2024-10-15T10:00:00Z'
+};
+
+// Enhanced DISCOM Application Mock Data
+export const mockDiscomApplication = {
+  application_id: 'app_001',
+  application_number: 'DISCOM-2024-001234',
+  user_id: 'user_123',
+  discom_name: 'BESCOM',
+  consumer_number: 'CON123456789',
+  status: 'grid_connected',
+  submitted_at: '2024-10-15T10:00:00Z',
+  approved_at: '2024-11-20T14:30:00Z',
+  agreement_number: 'AGR123456',
+  sanctioned_load: 5.0,
+  solar_capacity_kw: 3.0,
+  property_type: 'residential',
+  property_address: '123 Energy Street, Bangalore, Karnataka 560001',
+  electricity_provider: 'BESCOM',
+  installation_type: 'rooftop',
+  roof_area_sqft: 500,
+  created_at: '2024-10-15T10:00:00Z',
+  
+  // Documents
+  documents: [
+    {
+      id: 'identity_proof',
+      name: 'Identity Proof',
+      status: 'verified',
+      uploaded_at: '2024-10-15T10:30:00Z',
+      verified_at: '2024-10-16T09:00:00Z'
+    },
+    {
+      id: 'property_ownership',
+      name: 'Property Ownership Proof',
+      status: 'verified',
+      uploaded_at: '2024-10-15T10:35:00Z',
+      verified_at: '2024-10-16T09:15:00Z'
+    },
+    {
+      id: 'electricity_bill',
+      name: 'Latest Electricity Bill',
+      status: 'verified',
+      uploaded_at: '2024-10-15T10:40:00Z',
+      verified_at: '2024-10-16T09:30:00Z'
+    },
+    {
+      id: 'site_plan',
+      name: 'Site Plan/Sketch',
+      status: 'uploaded',
+      uploaded_at: '2024-10-15T11:00:00Z',
+      verified_at: null
+    }
+  ],
+  
+  // Feasibility Study & Technical Approval
+  feasibility_study: {
+    status: 'approved',
+    conducted_at: '2024-10-18T10:00:00Z',
+    grid_capacity_available: true,
+    grid_capacity_kw: 10.0,
+    transformer_capacity_kw: 25.0,
+    proposed_solar_capacity_kw: 3.0,
+    capacity_utilization_percent: 12.0,
+    remarks: 'Grid capacity sufficient for proposed solar system'
+  },
+  
+  technical_approval: {
+    status: 'approved',
+    approval_letter_number: 'TA-BESCOM-2024-001234',
+    approval_date: '2024-10-25T14:00:00Z',
+    approved_by: 'DISCOM Technical Team',
+    validity_period_days: 180,
+    conditions: [
+      'System must comply with CEA and BIS standards',
+      'Anti-islanding protection must be installed',
+      'Bi-directional meter will be installed by DISCOM'
+    ]
+  },
+  
+  // System Installation
+  system_installation: {
+    status: 'completed',
+    installation_date: '2024-11-05T09:00:00Z',
+    installer_name: 'SolarTech Installations',
+    installer_license: 'INST-LIC-2024-5678',
+    equipment_compliance: {
+      cea_compliant: true,
+      bis_compliant: true,
+      inverter_brand: 'SolarEdge',
+      inverter_model: 'SE5000',
+      panel_brand: 'Adani Solar',
+      panel_capacity_w: 300
+    },
+    installation_certificate_number: 'INST-CERT-2024-001234'
+  },
+  
+  // Inspection and Documentation
+  inspection_documentation: {
+    status: 'completed',
+    inspection_date: '2024-11-10T10:00:00Z',
+    inspected_by: 'DISCOM Inspection Team',
+    electrical_test_results: {
+      voltage_alignment: '220V ± 5%',
+      frequency_alignment: '50Hz ± 0.5Hz',
+      power_factor: '0.95+',
+      insulation_resistance: 'Pass',
+      earth_resistance: 'Pass',
+      test_certificate_number: 'TEST-CERT-2024-001234'
+    },
+    commissioning_certificate: {
+      certificate_number: 'COMM-CERT-2024-001234',
+      issued_date: '2024-11-12T10:00:00Z',
+      issued_by: 'DISCOM Commissioning Authority'
+    }
+  },
+  
+  // Grid Synchronization
+  grid_sync: {
+    status: 'synchronized',
+    meter_number: 'BI-MTR-2024-001234',
+    meter_type: 'Bi-directional Smart Meter',
+    installation_date: '2024-11-15T09:00:00Z',
+    synchronized_at: '2024-11-15T11:30:00Z',
+    anti_islanding_protection: {
+      status: 'active',
+      tested: true,
+      test_date: '2024-11-15T10:00:00Z',
+      compliance: 'CEA Compliant'
+    },
+    voltage_frequency_alignment: {
+      voltage: '220.5V',
+      frequency: '50.0Hz',
+      status: 'aligned',
+      last_check: new Date().toISOString()
+    },
+    export_enabled: true,
+    last_sync_at: new Date().toISOString()
+  },
+  
+  // Commissioning
+  commissioning: {
+    status: 'complete',
+    commissioning_date: '2024-11-20T14:00:00Z',
+    commissioning_report_number: 'COMM-RPT-2024-001234',
+    meter_sealing_status: 'sealed',
+    meter_sealed_by: 'DISCOM Metering Team',
+    meter_sealed_at: '2024-11-20T14:30:00Z',
+    billing_cycle_start: '2024-11-21T00:00:00Z',
+    net_metering_active: true
+  }
 };
 
 // Mock users for demo login

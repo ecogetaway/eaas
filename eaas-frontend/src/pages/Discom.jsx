@@ -4,6 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar.jsx';
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
 import { discomService } from '../services/discomService.js';
+import DocumentChecklist from '../components/discom/DocumentChecklist.jsx';
+import TechnicalDetailsCard from '../components/discom/TechnicalDetailsCard.jsx';
+import GridSyncDetailsCard from '../components/discom/GridSyncDetailsCard.jsx';
+import CommissioningCard from '../components/discom/CommissioningCard.jsx';
 import { 
   FileText, Clock, CheckCircle, AlertCircle, 
   Send, Building2, Zap, Calendar, ChevronRight,
@@ -361,6 +365,17 @@ const ApplicationForm = ({ userId, onSuccess, onCancel }) => {
           />
         </div>
 
+        {/* Required Documents */}
+        <DocumentChecklist 
+          documents={[
+            { id: 'identity_proof', name: 'Identity Proof', description: 'Aadhaar, PAN, or Driving License', status: 'required' },
+            { id: 'property_ownership', name: 'Property Ownership Proof', description: 'Sale Deed, Property Tax Receipt, or NOC (for tenants)', status: 'required' },
+            { id: 'electricity_bill', name: 'Latest Electricity Bill', description: 'Most recent electricity bill from DISCOM', status: 'required' },
+            { id: 'site_plan', name: 'Site Plan/Sketch', description: 'Optional: Site layout sketch', status: 'optional' }
+          ]}
+          showUploadButton={true}
+        />
+
         {/* Demo Notice */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start">
@@ -413,32 +428,44 @@ const ApplicationStatus = ({ statusData, onRefresh }) => {
   
   const statusColors = {
     'submitted': 'bg-blue-500',
-    'under_review': 'bg-blue-500',
-    'document_verification': 'bg-yellow-500',
+    'document_verification': 'bg-blue-500',
+    'feasibility_study': 'bg-yellow-500',
     'site_inspection_scheduled': 'bg-yellow-500',
     'site_inspection_completed': 'bg-yellow-500',
     'technical_approval': 'bg-orange-500',
-    'meter_installation': 'bg-orange-500',
-    'grid_sync_pending': 'bg-purple-500',
-    'approved': 'bg-green-500',
+    'system_installation': 'bg-orange-500',
+    'inspection_documentation': 'bg-purple-500',
+    'meter_installation': 'bg-purple-500',
+    'grid_sync_pending': 'bg-indigo-500',
+    'grid_synchronized': 'bg-indigo-500',
+    'commissioning_complete': 'bg-green-500',
     'grid_connected': 'bg-green-600'
   };
 
   const statusLabels = {
     'submitted': 'Submitted',
-    'under_review': 'Under Review',
     'document_verification': 'Document Verification',
+    'feasibility_study': 'Feasibility Study',
     'site_inspection_scheduled': 'Site Inspection Scheduled',
     'site_inspection_completed': 'Site Inspection Completed',
     'technical_approval': 'Technical Approval',
+    'system_installation': 'System Installation',
+    'inspection_documentation': 'Inspection & Documentation',
     'meter_installation': 'Meter Installation',
     'grid_sync_pending': 'Grid Sync Pending',
-    'approved': 'Approved',
+    'grid_synchronized': 'Grid Synchronized',
+    'commissioning_complete': 'Commissioning Complete',
     'grid_connected': 'Grid Connected'
   };
 
   const isCompleted = application.status === 'grid_connected';
-  const isApproved = application.status === 'approved' || isCompleted;
+  const isApproved = application.status === 'technical_approval' || 
+                     application.status === 'system_installation' ||
+                     application.status === 'inspection_documentation' ||
+                     application.status === 'meter_installation' ||
+                     application.status === 'grid_synchronized' ||
+                     application.status === 'commissioning_complete' ||
+                     isCompleted;
 
   return (
     <div className="space-y-6">
@@ -447,10 +474,10 @@ const ApplicationStatus = ({ statusData, onRefresh }) => {
         <div className="flex items-start justify-between mb-4">
           <div>
             <p className="text-sm text-gray-500">Application Number</p>
-            <p className="text-xl font-bold font-mono">{application.application_number}</p>
+            <p className="text-xl font-bold font-mono">{application.application_number || application.application_id || 'N/A'}</p>
           </div>
-          <div className={`px-4 py-2 rounded-full text-white text-sm font-medium ${statusColors[application.status]}`}>
-            {statusLabels[application.status]}
+          <div className={`px-4 py-2 rounded-full text-white text-sm font-medium ${statusColors[application.status] || 'bg-gray-500'}`}>
+            {statusLabels[application.status] || application.status}
           </div>
         </div>
 
@@ -484,7 +511,7 @@ const ApplicationStatus = ({ statusData, onRefresh }) => {
           </div>
           <div>
             <p className="text-gray-500">Submitted</p>
-            <p className="font-medium">{new Date(application.created_at).toLocaleDateString()}</p>
+            <p className="font-medium">{new Date(application.submitted_at || application.created_at).toLocaleDateString()}</p>
           </div>
         </div>
 
@@ -556,6 +583,30 @@ const ApplicationStatus = ({ statusData, onRefresh }) => {
         </div>
       </div>
 
+      {/* Document Checklist */}
+      {application.documents && application.documents.length > 0 && (
+        <DocumentChecklist 
+          documents={application.documents} 
+          showUploadButton={application.status === 'submitted' || application.status === 'document_verification'}
+        />
+      )}
+
+      {/* Technical Details */}
+      <TechnicalDetailsCard 
+        technicalApproval={statusData.technical_approval}
+        feasibilityStudy={statusData.feasibility_study}
+        systemInstallation={statusData.system_installation}
+      />
+
+      {/* Grid Synchronization Details */}
+      <GridSyncDetailsCard gridSync={statusData.grid_sync} />
+
+      {/* Commissioning Details */}
+      <CommissioningCard 
+        commissioning={statusData.commissioning}
+        inspectionDocumentation={statusData.inspection_documentation}
+      />
+
       {/* Property & Connection Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card">
@@ -589,16 +640,16 @@ const ApplicationStatus = ({ statusData, onRefresh }) => {
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-500">Provider</span>
-              <span className="font-medium">{application.electricity_provider}</span>
+              <span className="font-medium">{application.electricity_provider || application.discom_name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Consumer No.</span>
               <span className="font-medium">{application.consumer_number}</span>
             </div>
-            {application.sanctioned_load_kw && (
+            {(application.sanctioned_load_kw || application.sanctioned_load) && (
               <div className="flex justify-between">
                 <span className="text-gray-500">Sanctioned Load</span>
-                <span className="font-medium">{application.sanctioned_load_kw} kW</span>
+                <span className="font-medium">{application.sanctioned_load_kw || application.sanctioned_load} kW</span>
               </div>
             )}
           </div>
