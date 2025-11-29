@@ -10,6 +10,7 @@ export const authService = {
       await new Promise(resolve => setTimeout(resolve, 600));
       const newUser = {
         user_id: `user_${Date.now()}`,
+        userId: `user_${Date.now()}`, // Add both for compatibility
         email: userData.email,
         name: userData.name || userData.full_name,
         phone: userData.phone,
@@ -57,12 +58,19 @@ export const authService = {
       const token = `mock_token_${Date.now()}`;
       const { password: _, ...userWithoutPassword } = user;
       
+      // Ensure user has both userId and user_id for compatibility
+      const userWithIds = {
+        ...userWithoutPassword,
+        userId: user.user_id,
+        user_id: user.user_id
+      };
+      
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      localStorage.setItem('user', JSON.stringify(userWithIds));
       
       return {
         token,
-        user: userWithoutPassword
+        user: userWithIds
       };
     }
     

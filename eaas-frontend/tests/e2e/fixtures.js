@@ -1,10 +1,10 @@
 import { test as base, expect } from '@playwright/test';
 
-// Test data from seed script
+// Test data matching mock data
 export const TEST_USER = {
-  email: 'demo1@eaas.com',
-  password: 'Demo@123',
-  name: 'Demo User 1',
+  email: 'demo@eaas.com',
+  password: 'demo123',
+  name: 'Demo User',
 };
 
 export const TEST_USER_INVALID = {

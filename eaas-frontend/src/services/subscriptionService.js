@@ -109,7 +109,11 @@ export const subscriptionService = {
   getUserSubscriptions: async (userId) => {
     if (USE_MOCK_DATA) {
       await new Promise(resolve => setTimeout(resolve, 300));
-      return [mockSubscription];
+      // Return subscription with matching user_id
+      return [{
+        ...mockSubscription,
+        user_id: userId || mockSubscription.user_id
+      }];
     }
     
     try {
