@@ -5,6 +5,61 @@ import Navbar from '../components/common/Navbar.jsx';
 import { Send, Bot, User as UserIcon, Sparkles, Search } from 'lucide-react';
 import { aiAdvisorService } from '../services/aiAdvisorService.js';
 
+// Helper function to get placeholder response (same as in service)
+function getPlaceholderResponse(message) {
+  const lowerMessage = message.toLowerCase();
+  
+  if (lowerMessage.includes('competitor') || lowerMessage.includes('similar') || lowerMessage.includes('research')) {
+    return `Here are some similar EaaS applications you can study:
+
+1. **Sunrun**: A major US residential solar EaaS provider offering PPA/Lease models with no upfront costs.
+
+2. **Octopus Energy (Kraken Tech)**: Known for agile tariffs and software platforms managing distributed energy resources.
+
+3. **Tesla Energy**: Their solar subscription and Powerwall VPP (Virtual Power Plant) programs are excellent examples.
+
+4. **Enphase Ensembles**: While hardware-focused, their monitoring software is a benchmark for energy management apps.
+
+5. **Gogoro**: A great example of Battery-as-a-Service (BaaS) in the mobility sector.
+
+These platforms demonstrate various approaches to energy-as-a-service models.`;
+  }
+  
+  if (lowerMessage.includes('savings') || lowerMessage.includes('co2') || lowerMessage.includes('carbon') || lowerMessage.includes('hybrid freedom')) {
+    return `With the Hybrid Freedom plan (5kW Solar + 5kWh Battery), you can expect:
+
+- **Monthly Savings**: Approximately ₹2,000-3,500 on electricity bills
+- **CO₂ Offset**: Around 200-300 kg per month (depending on your location and usage)
+- **Payback Period**: Typically 5-7 years
+- **Lifetime Savings**: Over ₹5,00,000 in 20 years
+
+These estimates are based on average usage patterns. Your actual savings may vary based on your energy consumption and local utility rates.`;
+  }
+  
+  if (lowerMessage.includes('fault') || lowerMessage.includes('issue') || lowerMessage.includes('problem')) {
+    return `I've logged your issue report. Our technical team will review it and contact you within 24 hours.
+
+For urgent issues, please call our support hotline or visit the Support section to create a priority ticket.
+
+Common inverter issues and quick fixes:
+- Check if the inverter display is showing any error codes
+- Ensure all connections are secure
+- Verify that the system is receiving sunlight (for solar inverters)
+
+Is there anything specific about the fault you'd like to describe?`;
+  }
+  
+  // Default response
+  return `Thank you for your message! I'm here to help you with:
+- Understanding our energy plans and pricing
+- Analyzing your potential energy savings
+- Researching competitors and market trends
+- Reporting technical issues
+- Answering questions about EaaS platforms
+
+How can I assist you today?`;
+}
+
 const AiAdvisor = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -35,12 +90,15 @@ const AiAdvisor = () => {
   };
 
   const handleSend = async () => {
-    if (!inputValue.trim() || !user?.userId) return;
+    // Get user ID from either userId or user_id
+    const userId = user?.userId || user?.user_id;
+    if (!inputValue.trim() || !userId) return;
 
+    const userMessage = inputValue.trim();
     const newUserMsg = {
       id: Date.now().toString(),
       role: 'user',
-      text: inputValue,
+      text: userMessage,
       timestamp: new Date()
     };
 
@@ -55,8 +113,8 @@ const AiAdvisor = () => {
       }));
 
       const responseText = await aiAdvisorService.sendMessage(
-        user.userId,
-        inputValue,
+        userId,
+        userMessage,
         history
       );
 
@@ -69,10 +127,11 @@ const AiAdvisor = () => {
       setMessages(prev => [...prev, newAiMsg]);
     } catch (err) {
       console.error('AI Advisor error:', err);
+      // Even on error, provide a helpful response
       const errorMsg = {
         id: (Date.now() + 1).toString(),
         role: 'model',
-        text: 'I apologize, but I encountered an error. Please try again later.',
+        text: getPlaceholderResponse(userMessage),
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMsg]);

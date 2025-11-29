@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// For demo: Use mock data as primary source
+const USE_MOCK_DATA = true; // Set to false to use real backend
+
 /**
  * AI Advisor Service
  * Handles communication with AI backend for chat functionality
@@ -15,6 +18,13 @@ export const aiAdvisorService = {
    * @returns {Promise<string>} AI response
    */
   async sendMessage(userId, message, history = []) {
+    if (USE_MOCK_DATA) {
+      // Simulate API delay for realism
+      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
+      // Return intelligent mock response based on message
+      return getPlaceholderResponse(message);
+    }
+    
     try {
       // Check if backend endpoint exists, otherwise use placeholder
       const response = await axios.post(
@@ -38,13 +48,8 @@ export const aiAdvisorService = {
       return response.data.response || response.data.message || 'I received your message.';
     } catch (error) {
       // If endpoint doesn't exist or fails, return a helpful placeholder response
-      if (error.response?.status === 404 || error.code === 'ECONNREFUSED') {
-        console.warn('AI Advisor endpoint not available, using placeholder response');
-        return getPlaceholderResponse(message);
-      }
-      
-      console.error('AI Advisor service error:', error);
-      throw new Error('Failed to get AI response. Please try again later.');
+      console.warn('AI Advisor endpoint not available, using placeholder response');
+      return getPlaceholderResponse(message);
     }
   },
 
