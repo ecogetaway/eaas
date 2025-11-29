@@ -86,6 +86,48 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Test database connection - see what tables are visible
+app.get('/api/test/db', async (req, res) => {
+  try {
+    // Test connection
+    const connectionTest = await pool.query('SELECT NOW(), current_database(), current_schema()');
+    
+    // List all tables in public schema
+    const tablesResult = await pool.query(`
+      SELECT 
+        table_schema,
+        table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_type = 'BASE TABLE'
+      ORDER BY table_name;
+    `);
+    
+    // Check if plan_catalog exists
+    const planCatalogCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'plan_catalog'
+      );
+    `);
+    
+    res.json({ 
+      success: true,
+      connection: connectionTest.rows[0],
+      tables: tablesResult.rows,
+      tableCount: tablesResult.rows.length,
+      planCatalogExists: planCatalogCheck.rows[0].exists
+    });
+  } catch (error) {
+    res.json({ 
+      success: false, 
+      error: error.message,
+      stack: error.stack 
+    });
+  }
+});
+
 // Root route - helpful message
 app.get('/', (req, res) => {
   res.json({ 

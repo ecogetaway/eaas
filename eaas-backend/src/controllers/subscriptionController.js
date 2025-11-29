@@ -6,7 +6,7 @@ import emailService from '../services/emailService.js';
 export const getPlans = async (req, res, next) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM plan_catalog WHERE is_active = true ORDER BY monthly_fee ASC`
+      `SELECT * FROM public.plan_catalog WHERE is_active = true ORDER BY monthly_fee ASC`
     );
     res.json({ plans: result.rows });
   } catch (error) {
@@ -17,7 +17,7 @@ export const getPlans = async (req, res, next) => {
 export const getPlanById = async (req, res, next) => {
   try {
     const { planId } = req.params;
-    const result = await pool.query('SELECT * FROM plan_catalog WHERE plan_id = $1', [planId]);
+    const result = await pool.query('SELECT * FROM public.plan_catalog WHERE plan_id = $1', [planId]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Plan not found' });
@@ -36,7 +36,7 @@ export const recommendPlan = async (req, res, next) => {
 
     // Get all active plans
     const result = await pool.query(
-      `SELECT * FROM plan_catalog WHERE is_active = true ORDER BY monthly_fee ASC`
+      `SELECT * FROM public.plan_catalog WHERE is_active = true ORDER BY monthly_fee ASC`
     );
 
     const plans = result.rows;
