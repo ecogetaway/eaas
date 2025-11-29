@@ -11,14 +11,21 @@ const isSupabase = process.env.DATABASE_URL?.includes('supabase') || process.env
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Use SSL for Supabase or in production, and accept self-signed certificates
-const sslConfig = (isSupabase || isProduction) 
-  ? { 
-      rejectUnauthorized: false  // Accept self-signed certificates from Supabase
-    } 
-  : false;
+// For Supabase, we need to explicitly set SSL and accept self-signed certs
+let sslConfig = false;
+if (isSupabase || isProduction) {
+  sslConfig = {
+    rejectUnauthorized: false  // Accept self-signed certificates from Supabase
+  };
+}
+
+// Parse connection string to remove SSL params (we'll handle SSL in Pool config)
+let connectionString = process.env.DATABASE_URL || '';
+// Remove sslmode from connection string if present (we handle it in Pool config)
+connectionString = connectionString.replace(/[?&]sslmode=[^&]*/gi, '');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: connectionString,
   ssl: sslConfig,
   max: 20,
   idleTimeoutMillis: 30000,
