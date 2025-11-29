@@ -22,14 +22,16 @@ class SocketService {
       // Start simulating real-time energy updates
       this.startMockUpdates();
       
-      // Return a mock socket object
-      return {
+      // Create and store mock socket object
+      this.socket = {
         connected: true,
         emit: () => {},
         on: () => {},
         off: () => {},
         disconnect: () => this.stopMockUpdates()
       };
+      
+      return this.socket;
     }
     
     if (this.socket?.connected) {
@@ -91,13 +93,29 @@ class SocketService {
   }
 
   subscribeToUser(userId) {
+    if (USE_MOCK_DATA) {
+      // In mock mode, just ensure connection is established
+      if (!this.isConnected) {
+        this.connect();
+      }
+      // No need to emit in mock mode
+      return;
+    }
+    
     if (!this.socket) {
       this.connect();
     }
-    this.socket.emit('subscribe_user', userId);
+    if (this.socket) {
+      this.socket.emit('subscribe_user', userId);
+    }
   }
 
   unsubscribeFromUser(userId) {
+    if (USE_MOCK_DATA) {
+      // No need to emit in mock mode
+      return;
+    }
+    
     if (this.socket) {
       this.socket.emit('unsubscribe_user', userId);
     }
