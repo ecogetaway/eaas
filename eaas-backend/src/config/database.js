@@ -5,12 +5,17 @@ dotenv.config();
 
 const { Pool } = pg;
 
+// SSL configuration for Supabase
+// Always use SSL in production, and handle self-signed certificates
+const sslConfig = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.includes('supabase') 
+  ? { 
+      rejectUnauthorized: false  // Accept self-signed certificates from Supabase
+    } 
+  : false;
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { 
-    rejectUnauthorized: false,
-    require: true 
-  } : false,
+  ssl: sslConfig,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
