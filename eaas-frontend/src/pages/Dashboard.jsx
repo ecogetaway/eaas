@@ -30,7 +30,8 @@ const DashboardContent = () => {
   const { currentEnergy, energyHistory, dashboardSummary, loadHistory } = useEnergy();
 
   useEffect(() => {
-    if (!user?.userId) {
+    const userId = user?.userId || user?.user_id;
+    if (!userId) {
       navigate('/login');
       return;
     }
@@ -39,12 +40,12 @@ const DashboardContent = () => {
   }, [user]);
 
   const loadSubscription = async () => {
-    if (!user?.userId && !user?.user_id) return;
+    // Get user ID from either userId or user_id
+    const userId = user?.userId || user?.user_id;
+    if (!userId) return;
     
     try {
       setLoading(true);
-      // Use user_id if available, otherwise userId
-      const userId = user.user_id || user.userId;
       const subscriptions = await subscriptionService.getUserSubscriptions(userId);
       if (subscriptions.length > 0) {
         setSubscription(subscriptions[0]);
@@ -84,10 +85,11 @@ const DashboardContent = () => {
   };
 
   useEffect(() => {
-    if (user?.userId && period) {
+    const userId = user?.userId || user?.user_id;
+    if (userId && period) {
       loadHistory(period);
     }
-  }, [period, user?.userId]);
+  }, [period, user]);
 
   if (loading) {
     return (
@@ -202,7 +204,7 @@ const DashboardContent = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div>
               <h2 className="text-xl font-semibold mb-4">DISCOM Status</h2>
-              <DiscomStatusCard userId={user?.userId} />
+              <DiscomStatusCard userId={user?.userId || user?.user_id} />
             </div>
             <div>
             <h2 className="text-xl font-semibold mb-4">Active Alerts</h2>
@@ -225,12 +227,19 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  if (!isAuthenticated || !user?.userId) {
-    return null;
+  // Get user ID from either userId or user_id
+  const userId = user?.userId || user?.user_id;
+
+  if (!isAuthenticated || !userId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
   return (
-    <EnergyProvider userId={user.userId}>
+    <EnergyProvider userId={userId}>
       <DashboardContent />
     </EnergyProvider>
   );

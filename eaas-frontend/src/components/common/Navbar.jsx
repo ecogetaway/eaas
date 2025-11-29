@@ -13,18 +13,20 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (isAuthenticated && user?.userId) {
+    const userId = user?.userId || user?.user_id;
+    if (isAuthenticated && userId) {
       loadUnreadCount();
       // Refresh unread count every 30 seconds
       const interval = setInterval(loadUnreadCount, 30000);
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated, user?.userId]);
+  }, [isAuthenticated, user]);
 
   const loadUnreadCount = async () => {
-    if (!user?.userId) return;
+    const userId = user?.userId || user?.user_id;
+    if (!userId) return;
     try {
-      const count = await notificationService.getUnreadCount(user.userId);
+      const count = await notificationService.getUnreadCount(userId);
       setUnreadCount(count);
     } catch (error) {
       console.error('Error loading unread count:', error);

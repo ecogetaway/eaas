@@ -28,11 +28,12 @@ const Discom = () => {
   }, [isAuthenticated, navigate]);
 
   const loadStatus = async () => {
-    if (!user?.userId) return;
+    const userId = user?.userId || user?.user_id;
+    if (!userId) return;
     
     try {
       setLoading(true);
-      const data = await discomService.getApplicationStatus(user.userId);
+      const data = await discomService.getApplicationStatus(userId);
       setStatusData(data);
     } catch (error) {
       console.error('Error loading DISCOM status:', error);
