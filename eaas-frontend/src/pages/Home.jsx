@@ -19,13 +19,28 @@ const Home = () => {
               <p className="text-xl md:text-2xl mb-8 text-primary-100">
                 Switch to solar energy and save money while saving the planet
               </p>
-              <div className="flex justify-center space-x-4">
-                <Link to="/register" className="btn bg-white text-primary-600 hover:bg-gray-100">
-                  Get Started
-                </Link>
-                <Link to="/login" className="btn btn-outline border-white text-white hover:bg-white/10">
-                  Login
-                </Link>
+              <div className="flex flex-col items-center space-y-4">
+                <div className="flex justify-center space-x-4">
+                  <Link to="/register" className="btn bg-white text-primary-600 hover:bg-gray-100">
+                    Get Started
+                  </Link>
+                  <Link to="/login" className="btn btn-outline border-white text-white hover:bg-white/10">
+                    Login
+                  </Link>
+                </div>
+                <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 max-w-md">
+                  <p className="text-sm font-semibold text-white mb-2 text-center">Try Demo Account</p>
+                  <div className="text-xs text-primary-100 space-y-1 text-center">
+                    <p><strong>User 1:</strong> demo@eaas.com / demo123</p>
+                    <p><strong>User 2:</strong> demo2@eaas.com / demo123</p>
+                  </div>
+                  <Link 
+                    to="/login" 
+                    className="block mt-3 text-center text-sm text-white underline hover:text-primary-100"
+                  >
+                    Click here to login with demo credentials →
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
