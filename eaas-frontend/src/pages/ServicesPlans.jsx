@@ -12,7 +12,10 @@ const plans = [
     id: 'grid',
     name: 'Grid Electricity',
     price: 0,
+    priceRange: '₹7 per kWh',
+    priceNote: 'Variable based on consumption',
     capacity: 'Traditional Utility Grid',
+    example: '200 kWh/month ≈ ₹1,400 (plus fixed charges, total typically ₹1,500–2,000/month)',
     features: [
       'Essential grid connection for all plans',
       'Night-time and cloudy-day supply',
@@ -26,27 +29,31 @@ const plans = [
   {
     id: 'basic',
     name: 'Solar Starter',
-    price: 49,
+    price: 0,
+    priceRange: '₹1,500–2,000',
     capacity: '3kW Solar Panel Array',
     features: [
       'Zero upfront hardware cost',
-      'Basic consumption monitoring',
-      'Standard grid net-metering',
-      'Fault repair within 48h',
+      '3kW solar panel array',
+      'Basic monitoring dashboard',
+      'Grid net-metering integration',
+      'Fault repair within 48 hours',
       'Grid electricity included (required)'
     ],
   },
   {
     id: 'pro',
     name: 'Hybrid Freedom',
-    price: 89,
+    price: 0,
+    priceRange: '₹1,500–2,500',
     capacity: '5kW Solar + 5kWh Battery',
     features: [
-      'All Starter features',
-      'Power outage backup (4 hrs)',
-      'Advanced savings analytics',
+      'All Solar Starter features',
+      '5kW solar + 5kWh battery system',
+      'Power outage backup (4 hours)',
+      'Smart load management',
+      'EV charger integration',
       'Priority support (24h fix)',
-      'Carbon offset certificates',
       'Grid electricity included (required)'
     ],
     recommended: true
@@ -54,14 +61,16 @@ const plans = [
   {
     id: 'max',
     name: 'Grid Independent',
-    price: 149,
+    price: 0,
+    priceRange: '₹1,800–2,600',
     capacity: '10kW Solar + 13.5kWh Battery',
     features: [
       'Complete energy autonomy capability',
-      'Whole-home backup',
-      'Smart load management',
-      'EV Charger integration included',
+      '10kW solar + 13.5kWh battery system',
+      'Whole-home backup power',
+      'Advanced analytics dashboard',
       'Proactive maintenance AI',
+      'Carbon offset certificates',
       'Grid electricity included (required)'
     ]
   }
@@ -181,17 +190,32 @@ const ServicesPlans = () => {
                       )}
                       <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
                     </div>
-                    <div className="mt-4 flex items-baseline">
+                    <div className="mt-4">
                       {isGrid ? (
-                        <span className="text-2xl font-bold text-blue-600">Included</span>
+                        <div>
+                          <div className="flex items-baseline">
+                            <span className="text-2xl font-bold text-blue-600">Included</span>
+                          </div>
+                          <p className="mt-2 text-sm font-semibold text-blue-700">
+                            {plan.priceRange}
+                          </p>
+                          <p className="mt-1 text-xs text-blue-600">
+                            {plan.priceNote}
+                          </p>
+                        </div>
                       ) : (
-                        <>
-                          <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
-                          <span className="ml-2 text-gray-500">/month</span>
-                        </>
+                        <div>
+                          <div className="flex items-baseline">
+                            <span className="text-4xl font-bold text-gray-900">{plan.priceRange}</span>
+                            <span className="ml-2 text-gray-500 text-lg">/month</span>
+                          </div>
+                          <p className="mt-1 text-xs text-gray-500">
+                            Starting from
+                          </p>
+                        </div>
                       )}
                     </div>
-                    <p className={`mt-2 text-sm font-medium inline-block px-2 py-1 rounded ${
+                    <p className={`mt-3 text-sm font-medium inline-block px-2 py-1 rounded ${
                       isGrid 
                         ? 'text-blue-700 bg-blue-100' 
                         : 'text-brand-600 bg-brand-50'
@@ -199,9 +223,12 @@ const ServicesPlans = () => {
                       {plan.capacity}
                     </p>
                     {isGrid && (
-                      <p className="mt-2 text-xs text-blue-600 italic">
-                        Required for all solar plans
-                      </p>
+                      <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <p className="text-xs text-blue-800 font-medium mb-1">Example:</p>
+                        <p className="text-xs text-blue-700">
+                          {plan.example}
+                        </p>
+                      </div>
                     )}
 
                     <ul className="mt-8 space-y-4">
@@ -239,11 +266,14 @@ const ServicesPlans = () => {
 
           <div className="mt-12 bg-blue-50 rounded-xl border border-blue-200 p-6 mb-8">
             <div className="flex items-start space-x-3">
-              <Grid3x3 className="w-5 h-5 text-blue-600 mt-0.5" />
+              <Grid3x3 className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
               <div>
-                <h4 className="text-sm font-bold text-blue-900 mb-1">About Grid Electricity</h4>
-                <p className="text-sm text-blue-800">
+                <h4 className="text-sm font-bold text-blue-900 mb-2">About Grid Electricity</h4>
+                <p className="text-sm text-blue-800 mb-2">
                   Grid electricity is <strong>required and included</strong> with all solar plans. It provides essential backup power during night-time and cloudy days when solar + battery are insufficient. Additionally, the grid connection enables <strong>net-metering</strong>, allowing you to export surplus solar energy and earn credits.
+                </p>
+                <p className="text-xs text-blue-700 italic mt-2 pt-2 border-t border-blue-200">
+                  <strong>Note:</strong> Grid electricity pricing is variable based on actual consumption and utility tariffs. Rates may vary by state and DISCOM provider.
                 </p>
               </div>
             </div>

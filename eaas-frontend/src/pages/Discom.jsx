@@ -8,10 +8,11 @@ import DocumentChecklist from '../components/discom/DocumentChecklist.jsx';
 import TechnicalDetailsCard from '../components/discom/TechnicalDetailsCard.jsx';
 import GridSyncDetailsCard from '../components/discom/GridSyncDetailsCard.jsx';
 import CommissioningCard from '../components/discom/CommissioningCard.jsx';
+import RealTimeConsumptionCard from '../components/discom/RealTimeConsumptionCard.jsx';
 import { 
-  FileText, Clock, CheckCircle, AlertCircle, 
-  Send, Building2, Zap, Calendar, ChevronRight,
-  RefreshCw, MapPin, Home, Info
+  FileText, Clock, CheckCircle, 
+  Send, Building2, Zap,
+  RefreshCw, MapPin, Home, Info, Activity
 } from 'lucide-react';
 
 const Discom = () => {
@@ -20,7 +21,6 @@ const Discom = () => {
   const [loading, setLoading] = useState(true);
   const [statusData, setStatusData] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ const Discom = () => {
           ) : statusData?.hasApplication ? (
             <ApplicationStatus 
               statusData={statusData} 
-              onRefresh={loadStatus}
+              userId={user?.userId || user?.user_id}
             />
           ) : (
             showForm ? (
@@ -423,7 +423,7 @@ const ApplicationForm = ({ userId, onSuccess, onCancel }) => {
 };
 
 // Application Status Component
-const ApplicationStatus = ({ statusData, onRefresh }) => {
+const ApplicationStatus = ({ statusData, userId }) => {
   const { application, timeline, currentStatusIndex, allStatuses, progressPercentage } = statusData;
   
   const statusColors = {
@@ -466,6 +466,11 @@ const ApplicationStatus = ({ statusData, onRefresh }) => {
                      application.status === 'grid_synchronized' ||
                      application.status === 'commissioning_complete' ||
                      isCompleted;
+  
+  // Show real-time consumption only when meters are active (grid_synchronized or later)
+  const showConsumptionTracking = application.status === 'grid_synchronized' || 
+                                    application.status === 'commissioning_complete' || 
+                                    application.status === 'grid_connected';
 
   return (
     <div className="space-y-6">
@@ -606,6 +611,40 @@ const ApplicationStatus = ({ statusData, onRefresh }) => {
         commissioning={statusData.commissioning}
         inspectionDocumentation={statusData.inspection_documentation}
       />
+
+      {/* Real-Time Consumption Tracking */}
+      {showConsumptionTracking ? (
+        <RealTimeConsumptionCard userId={userId} />
+      ) : (
+        <div className="card bg-gray-50 border-gray-200">
+          <div className="flex items-start space-x-4">
+            <div className="bg-gray-200 rounded-full p-3">
+              <Activity className="w-6 h-6 text-gray-500" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Real-Time Consumption Tracking
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                {application.status === 'meter_installation' || application.status === 'grid_sync_pending' ? (
+                  <>
+                    Smart meters are being installed and synchronized. Real-time consumption tracking will be available once your system is connected to the grid.
+                  </>
+                ) : (
+                  <>
+                    Real-time consumption tracking will be available once your net-metering application is approved and your smart meters are synchronized with the grid. This feature enables you to monitor your solar generation, grid import/export, and net-metering credits in real-time.
+                  </>
+                )}
+              </p>
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-xs text-blue-800">
+                  <strong>Coming Soon:</strong> After grid synchronization, you&apos;ll be able to track your energy consumption, monitor net-metering credits, and view real-time export data.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Property & Connection Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
